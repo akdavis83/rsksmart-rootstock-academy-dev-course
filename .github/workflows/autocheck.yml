@@ -62,3 +62,24 @@ jobs:
               repo: context.repo.repo,
               body: `### 🧪 Test Results (${process.env.MODULE}):\n\n\`\`\`\n${lastLines}\n\`\`\``
             });
+
+      - name: Notify Thinkific if all tests passed and mark course as completed
+        if: success()
+        run: |
+          # 1. Fetch Thinkific user_id by email or GitHub username
+          THINKIFIC_USER_ID=$(curl -s -X GET \
+            "https://api.thinkific.com/api/public/v1/users?query=${GITHUB_ACTOR}" \
+            -H "X-Auth-API-Key: ${{ secrets.THINKIFIC_API_KEY }}" \
+            -H "X-Auth-Subdomain: ${{ secrets.THINKIFIC_SUBDOMAIN }}" \
+            | jq '.items[0].id')
+      
+          # 2. Mark course as completed
+          curl -X POST "https://api.thinkific.com/api/public/v1/enrollments" \
+            -H "X-Auth-API-Key: ${{ secrets.THINKIFIC_API_KEY }}" \
+            -H "X-Auth-Subdomain: ${{ secrets.THINKIFIC_SUBDOMAIN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "user_id": "'"${THINKIFIC_USER_ID}"'",
+              "course_id": "'"${{ secrets.THINKIFIC_COURSE_ID }}"'",
+              "completed_at": "'"$(date -Iseconds)"'"
+            }'
