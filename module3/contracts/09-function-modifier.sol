@@ -26,7 +26,7 @@ contract Cars {
         returns(uint256 carId)
     {
         require(
-            msg.value > 0.1 ether,
+            msg.value >= 0.1 ether,
             "requires payment"
         );
 
