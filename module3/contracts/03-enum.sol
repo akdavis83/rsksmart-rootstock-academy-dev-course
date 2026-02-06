@@ -10,9 +10,6 @@ contract Cars {
     CarStatus public status;
     address public owner;
 
-    constructor() {
-        owner = msg.sender;
-        // status defaults to CarStatus.driving (0)
-    }
+    constructor() {}
 
 }
